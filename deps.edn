@@ -1,0 +1,2 @@
+{:deps {org.apache.kafka/kafka-clients {:mvn/version "2.3.1"}
+        org.apache.kafka/kafka-streams {:mvn/version "2.3.1"}}}
