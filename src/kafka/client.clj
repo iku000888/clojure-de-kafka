@@ -16,19 +16,32 @@
         .all
         .get)))
 
+(defn delete-topic [admin-client topic-name]
+  (-> admin-client
+      (.deleteTopics ["grams"])
+      .all
+      .get))
+
 (defn send [producer topic k v]
   @(.send producer (ProducerRecord. k v)))
 
 (comment
-  (def admin-clint (AdminClient/create {"bootstrap.servers" "localhost:9092"}))
+  (def admin-client (AdminClient/create {"bootstrap.servers" "localhost:9092"}))
+  (create-topic admin-client "text")
+  (create-topic admin-client "grams")
+
   (def producer
     (KafkaProducer.
      {"bootstrap.servers" "localhost:9092"
       "key.serializer" "org.apache.kafka.common.serialization.StringSerializer"
       "value.serializer" "org.apache.kafka.common.serialization.StringSerializer"}))
-  @(.send producer (ProducerRecord. "foo"
+  @(.send producer (ProducerRecord. "text"
                                     "Some random key"
-                                    "Clojure Rocks!"))
+                                    "Clojure Rocks! Doh"))
+
+  @(.send producer (ProducerRecord. "text"
+                                    "Some random key"
+                                    "Clojure Is awesome Doh fasdf fasdfas fdasda"))
 
   (def consumer
     (KafkaConsumer.
@@ -36,7 +49,7 @@
       "key.deserializer" "org.apache.kafka.common.serialization.StringDeserializer"
       "value.deserializer" "org.apache.kafka.common.serialization.StringDeserializer"
       "group.id" "my-group"}))
-  (.subscribe consumer ["foo"])
+  (.subscribe consumer ["grams"])
   (->> (.poll consumer (java.time.Duration/ofMillis 200))
        (.iterator)
        (iterator-seq)
